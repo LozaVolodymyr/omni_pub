@@ -1,12 +1,15 @@
 const { exec } = require('child_process');
 const path = require('path');
-
+const os = require('os');
+ 
 const { processRequest } = require('../util')
 
 const baseUrl = 'http://localhost:8011'
+const username = os.userInfo().username;
+
 
 const startUpAudioToFace = async () => { 
-    const filePath = "C:\\Users\\emp1r\\AppData\\Local\\ov\\pkg\\audio2face-2023.1.1\\audio2face_headless";
+    const filePath = `C:\\Users\\${username}\\AppData\\Local\\ov\\pkg\\audio2face-2023.1.1\\audio2face_headless`;
     try {
         await exec(filePath)
         console.log(`audio2face_headless started successfully`);

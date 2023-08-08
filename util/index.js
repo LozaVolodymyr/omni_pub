@@ -23,7 +23,7 @@ const processRequest = async ({ method, url, data = {}, headers = {} }) => {
         });
         return response.data;
     } catch (error) {
-        console.error(`Failed to make ${method} request to ${url}:`, error);
+        console.error(`Failed to make ${method} request to ${url}:`, error.message);
         throw error;
     }
 };

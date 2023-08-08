@@ -11,26 +11,32 @@ let instances;
 
 app.use(express.json()); // for parsing application/json
 app.post('/api/v1/t2b', async (req, res) => {
-    const data = req.body;
-    const { transcriptionId } = await text2audio.convert({ text: data.text });
-    const { audioUrl } = await util.callApiUntilTrue({ handler: text2audio.articleStatus, args: { transcriptionId }});
-    const filename = (`test${transcriptionId}.wav`.toLowerCase()).replace(/-/g, '_'); // weird logic regarding name, need document clarification
-    await util.downloadFile({ url: audioUrl, filename });
-    console.log('Successfully File donwloaded');
-    // setTrack
-    await audio2face.setTrack({ instances, filename });
-    await audio2face.generateKeys(instances);
-    
-    await Promise.all([
-        audio2face.exportEmotionKeys({ instances, filename }),  
-        audio2face.exportBlendshapes({ instances, filename })
-    ])
-    
-    // return files and 
-    const json = await util.uploadJson({ filename });
-    console.log('Successfully uploadJson')
-    res.json(json);
-    console.log('Successfully flow end')
+
+    try {
+        const data = req.body;
+        const { transcriptionId } = await text2audio.convert({ text: data.text });
+        const { audioUrl } = await util.callApiUntilTrue({ handler: text2audio.articleStatus, args: { transcriptionId }});
+        const filename = (`test${transcriptionId}.wav`.toLowerCase()).replace(/-/g, '_'); // weird logic regarding name, need document clarification
+        await util.downloadFile({ url: audioUrl, filename });
+        console.log('Successfully File donwloaded');
+        
+        await audio2face.setTrack({ instances, filename });
+        await audio2face.generateKeys(instances);
+        
+        await Promise.all([
+            audio2face.exportEmotionKeys({ instances, filename }),  
+            audio2face.exportBlendshapes({ instances, filename })
+        ])
+        
+        // return files and 
+        const json = await util.uploadJson({ filename });
+        console.log('Successfully uploadJson')
+        res.json(json);
+        console.log('Successfully flow end')
+    } catch (error) {
+        res.status(500).json(error.message);
+    }
+
 });
 
 
