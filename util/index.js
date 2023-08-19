@@ -33,13 +33,13 @@ async function callApiUntilTrue({ handler, args, maxAttempts = 10 }) {
       try {
         const response = await handler(args);
         console.log('Check status :', response)
-        if (response.converted) {
+        if (response.output) {
           return response;
         }
       } catch (error) {
         console.error(`Attempt ${attempt}: Error calling API:`, error.message);
       }
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 3000));
     }
     return false;
   }

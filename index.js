@@ -14,10 +14,11 @@ app.post('/api/v1/t2b', async (req, res) => {
 
     try {
         const data = req.body;
-        const { transcriptionId } = await text2audio.convert({ text: data.text });
-        const { audioUrl } = await util.callApiUntilTrue({ handler: text2audio.articleStatus, args: { transcriptionId }});
-        const filename = (`test${transcriptionId}.wav`.toLowerCase()).replace(/-/g, '_'); // weird logic regarding name, need document clarification
-        await util.downloadFile({ url: audioUrl, filename });
+        const { id: transcriptionId } = await text2audio.convertV2({ text: data.text, voice: data.voice });
+        const { output } = await util.callApiUntilTrue({ handler: text2audio.articleStatusV2, args: { transcriptionId }});
+        // const filename = (`test${transcriptionId}`.toLowerCase()).replace(/-/g, '_'); // weird logic regarding name, need document clarification
+        const filename = output.url.split('/').pop();
+        await util.downloadFile({ url: output.url, filename });
         console.log('Successfully File donwloaded');
         
         await audio2face.setTrack({ instances, filename });
@@ -30,6 +31,7 @@ app.post('/api/v1/t2b', async (req, res) => {
         
         // return files and 
         const json = await util.uploadJson({ filename });
+        json.url = output.url;
         console.log('Successfully uploadJson')
         res.json(json);
         console.log('Successfully flow end')
